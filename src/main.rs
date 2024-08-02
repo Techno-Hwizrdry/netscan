@@ -106,4 +106,3 @@ fn main() {
     println!("Target IP: {}", target);
     println!("Ports: {:?}", ports_list)
 }
-
