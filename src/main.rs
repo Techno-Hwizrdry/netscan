@@ -14,7 +14,7 @@ const TITLE: &str = "
 
 #[derive(Parser)]
 struct Cli {
-    /// address
+    /// Either a single IP address or CIDR address.
     #[arg(short, long, required = true)]
     address: String,
     /// a single port, range of ports (ex: 21-711), or comma seperated list of ports
