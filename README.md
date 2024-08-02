@@ -20,21 +20,29 @@ Below are the command line arguments that can be passed to netscan.
 
 ### Examples
 
-To scan an IP given a single port:
-
-`netscan --address 192.168.1.1 443`
-
-To scan an IP given a range of ports:
-
-`netscan --address 192.168.1.1 21-711`
-
-To scan an IP given a list of ports:
-
-`netscan --address 192.168.1.1 53,80,443,`
-
 Omitting the -p argument will default to scanning all 65,535 ports on the target IP address (or CIDR address).
 
 `netscan --address 192.168.1.1`
+
+To scan an IP given a single port:
+
+`netscan --address 192.168.1.1 -p 443`
+
+To scan an IP given a range of ports:
+
+`netscan --address 192.168.1.1 -p 21-711`
+
+To scan an IP given a list of ports:
+
+`netscan --address 192.168.1.1 -p 53,80,443,`
+
+Providing a CIDR address allows you to scan a range of IP addresses.  Ports can be provided too:
+
+`netscan --address 192.168.1.1/24 -p 443`
+
+`netscan --address 192.168.1.1/24 -p 21-711`
+
+`netscan --address 192.168.1.1/24 -p 53,80,443`
 
 To print help:
 
