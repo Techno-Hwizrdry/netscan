@@ -1,8 +1,13 @@
 use clap::Parser;
+use colored::*;
+use std::collections::HashMap;
 use std::num::ParseIntError;
 use std::process::exit;
 
-const TITLE: &str = "
+mod netscan;
+use netscan::scan;
+
+const BANNER: &str = "
 ░▒▓███████▓▒░░▒▓████████▓▒░▒▓████████▓▒░▒▓███████▓▒░░▒▓██████▓▒░ ░▒▓██████▓▒░░▒▓███████▓▒░  
 ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░         ░▒▓█▓▒░  ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
 ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░         ░▒▓█▓▒░  ░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
@@ -91,9 +96,23 @@ fn print_and_exit(msg: &str, code: i32) {
     exit(code);
 }
 
+fn output_hosts(hosts: Vec<HashMap<&str, String>>) {
+    println!("\nIP                 Open Ports");
+    println!("-----------------------------");
+
+    for host in &hosts {
+        println!(
+            "{}     {}",
+            host.get("ip").unwrap(),
+            host.get("open_ports").unwrap()
+        );
+    }
+}
+
 fn main() {
     let args = Cli::parse();
     let target = args.address;
+    let ports_from_user = args.ports.clone();
     let ports = parse_ports_str(args.ports);
     let mut ports_list = vec![];
 
@@ -102,7 +121,11 @@ fn main() {
         Err(ref error) => print_and_exit(error, 0),
     }
 
-    println!("{}", TITLE);
+    println!("{}", BANNER.truecolor(24,121,226));
     println!("Target IP: {}", target);
-    println!("Ports: {:?}", ports_list)
+    println!("Ports: {}", ports_from_user.unwrap());
+
+    let hosts = scan(&target, ports_list);
+
+    output_hosts(hosts);
 }
