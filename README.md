@@ -1,6 +1,14 @@
 # NetScan
 A TCP port scanner written in Rust.
 
+I figured the best (i.e., fun) way to learn Rust is to write a tool used for network reconnaissance.
+
+## Disclaimer
+This project is a proof of concept for testing and educational purposes.
+Use it only against your own devices!
+Please check the legal regulations in your country before using it.
+I don't take any responsibility for what you do with this program.
+
 ## Build
 To build the development version:
 
