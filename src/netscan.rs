@@ -3,6 +3,8 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpStream};
 use std::str::FromStr;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
+use rand::random;
+use ping;
 
 fn cidr_to_ip_addresses(cidr: &str) -> Result<Vec<String>, Box<dyn std::error::Error>> {
     if cidr.is_empty() {
@@ -42,6 +44,23 @@ fn cidr_to_ip_addresses(cidr: &str) -> Result<Vec<String>, Box<dyn std::error::E
     return Ok(ip_addresses);
 }
 
+fn is_ip_reachable(ip: &str, timeout: Duration) -> bool {
+    let addr = ip.parse().unwrap();
+    let is_reachable = match ping::ping(
+        addr,
+        Some(timeout),
+        Some(166),
+        Some(3),
+        Some(5),
+        Some(&random()),
+    ) {
+        Ok(_) => true,
+        Err(_) => false
+    };
+
+    return is_reachable;
+}
+
 fn is_valid_cidr_size(cidr_size: &str) -> bool {
     if !cidr_size.parse::<u64>().is_ok() {
         return false;
@@ -77,7 +96,10 @@ pub fn scan(ip_range: &str, ports: Vec<u16>) -> Vec<HashMap<&str, String>> {
             return vec![];
         }
 
-        hosts.push(scan_ports(ip_range.to_string(), ports));
+        let host = scan_ports(ip_range.to_string(), ports);
+        if !host.is_empty() {
+            hosts.push(host);
+        }
         return hosts;
     }
     
@@ -87,15 +109,23 @@ pub fn scan(ip_range: &str, ports: Vec<u16>) -> Vec<HashMap<&str, String>> {
     };
     for ip in ips {
         let host = scan_ports(ip, ports.clone());
-        hosts.push(host)
+        if !host.is_empty() {
+            hosts.push(host);
+        }
     }
 
     return hosts;
 }
 
 fn scan_ports(ip: String, ports: Vec<u16>) -> HashMap<&'static str, String> {
-    let open_ports: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
+    let mut host = HashMap::new();
+    let duration = Duration::from_secs(1);
 
+    if !is_ip_reachable(&ip, duration) {
+        return host;
+    }
+
+    let open_ports: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
     ports.into_iter().for_each(|port| {
         let host = format!("{}:{}", ip, port);
         let open_ports = Arc::clone(&open_ports);
@@ -105,7 +135,6 @@ fn scan_ports(ip: String, ports: Vec<u16>) -> HashMap<&'static str, String> {
         }
     });
 
-    let mut host = HashMap::new();
     host.insert("ip", ip);
     host.insert("open_ports", open_ports.lock().unwrap().join(", "));
     return host;
@@ -146,6 +175,13 @@ mod tests {
         // Invalid prefix length
         let result = cidr_to_ip_addresses("192.168.1.0/64");
         assert!(matches!(result, Err(_)));
+    }
+
+    #[test]
+    fn test_is_ip_reachable() {
+        let duration = Duration::from_secs(3);
+        assert_eq!(true, is_ip_reachable("127.0.0.1", duration));
+        assert_eq!(false, is_ip_reachable("10.1.1.10", duration));
     }
 
     #[test]

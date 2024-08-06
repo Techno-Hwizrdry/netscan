@@ -6,4 +6,7 @@ edition = "2021"
 [dependencies]
 clap = { version = "4.5.10", features = ["derive"] }
 colored = "2"
+icmp-socket = "0.2.0"
 packet_rs = "0.4.0"
+ping = "0.5.2"
+rand = "0.8.5"

@@ -97,6 +97,10 @@ fn print_and_exit(msg: &str, code: i32) {
 }
 
 fn output_hosts(hosts: Vec<HashMap<&str, String>>) {
+    if hosts.is_empty() {
+        print_and_exit("\nNo hosts found.", 0);
+    }
+
     println!("\nIP                 Open Ports");
     println!("-----------------------------");
 
@@ -123,9 +127,8 @@ fn main() {
 
     println!("{}", BANNER.truecolor(24,121,226));
     println!("Target IP: {}", target);
-    println!("Ports: {}", ports_from_user.unwrap());
+    println!("Ports: {}", ports_from_user.unwrap_or("All ports".to_string()));
 
     let hosts = scan(&target, ports_list);
-
     output_hosts(hosts);
 }
