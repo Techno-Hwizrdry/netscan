@@ -52,12 +52,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bitfield"
-version = "0.13.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46afbd2983a5d5a7bd740ccb198caf5b82f45c40c09c0eed36052d91cb92e719"
-
-[[package]]
 name = "byteorder"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -143,16 +137,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
 
 [[package]]
-name = "icmp-socket"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "98bc3daf82cd6b2f02709427c17f75e1023471f59bc74726bbd27d8a907af605"
-dependencies = [
- "byteorder",
- "socket2",
-]
-
-[[package]]
 name = "is_terminal_polyfill"
 version = "1.70.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -176,28 +160,9 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "colored",
- "icmp-socket",
- "packet_rs",
  "ping",
  "rand",
 ]
-
-[[package]]
-name = "packet_rs"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a68bdbfdbb292331f97d8ffa6d6876464329aee51ecc8abd61c7efcbf63bca66"
-dependencies = [
- "bitfield",
- "paste",
- "pyo3_nullify",
-]
-
-[[package]]
-name = "paste"
-version = "1.0.15"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
 
 [[package]]
 name = "ping"
@@ -227,12 +192,6 @@ checksum = "5e719e8df665df0d1c8fbfd238015744736151d4445ec0836b8e628aae103b77"
 dependencies = [
  "unicode-ident",
 ]
-
-[[package]]
-name = "pyo3_nullify"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "625763a7c79883337490472d649b45a37abe0d3730ddbefb8b0e389ac4db9450"
 
 [[package]]
 name = "quote"
