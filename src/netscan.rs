@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::io::{Read, Write};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpStream};
 use std::str::FromStr;
 use std::sync::{Arc, Mutex};
@@ -130,14 +131,65 @@ fn scan_ports(ip: String, ports: Vec<u16>) -> HashMap<&'static str, String> {
         let host = format!("{}:{}", ip, port);
         let open_ports = Arc::clone(&open_ports);
         let socket_addr = SocketAddr::from_str(host.as_str()).unwrap();
-        if let Ok(_) = TcpStream::connect_timeout(&socket_addr, Duration::from_secs(3)) {
+        if let Ok(mut stream) = TcpStream::connect_timeout(&socket_addr, Duration::from_secs(3)) {
             open_ports.lock().unwrap().push(port.to_string());
+            println!("the answer is ---->  {}", get_banner(stream));
         }
     });
 
     host.insert("ip", ip);
     host.insert("open_ports", open_ports.lock().unwrap().join(", "));
     return host;
+}
+
+fn print_type_of<T>(_: &T) {
+    println!("{}", std::any::type_name::<T>())
+}
+
+fn get_banner(mut stream: TcpStream) -> String {
+    let request = b"GET / HTTP/1.1\r\n\r\n";
+    stream.write_all(request).unwrap();
+    let mut buffer = [0; 1024];
+    stream.read(&mut buffer).unwrap();
+    let thing = String::from_utf8_lossy(&buffer);
+    return parse_server(&thing.to_string());
+}
+
+fn remove_blank_lines(text: &str) -> String {
+    text.lines()
+        .filter(|line| !line.trim().is_empty())
+        .collect::<Vec<&str>>()
+        .join("\n")
+}
+
+fn parse_server(banner: &str) -> String {
+    let mut map = HashMap::new();
+    let binding = remove_blank_lines(banner);
+    for line in binding.lines() {
+        if let Some(ordinal_value) = line.chars().next().map(|c| c as u32) {
+            if ordinal_value == 0 {
+                break;
+            }
+        } else {
+            println!("");
+        }
+
+        if !line.contains(':') && banner.lines().count() >= 1 {
+            map.insert("Server".to_string(), line.to_string());
+            continue;
+        }
+        let mut parts = line.splitn(2, ':');
+        let key = parts.next().unwrap().trim();
+        let value = parts.next().unwrap().trim();
+
+        if key == "Server" {
+            map.insert(key.to_string(), value.to_string());
+            break;
+        }
+    }
+
+    let mut server = map.get("Server").unwrap();
+    return server.to_string();
 }
 
 #[cfg(test)]
