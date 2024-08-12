@@ -1,8 +1,8 @@
 use std::collections::HashMap;
+use std::fmt;
 use std::io::{Read, Write};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpStream};
 use std::str::FromStr;
-use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use rand::random;
 use ping;
@@ -89,8 +89,8 @@ fn is_valid_ip(ip_str: &str) -> bool {
     }
 }
 
-pub fn scan(ip_range: &str, ports: Vec<u16>) -> Vec<HashMap<&str, String>> {
-    let mut hosts: Vec<HashMap<&str, String>> = Vec::new();
+pub fn scan(ip_range: &str, ports: Vec<u16>) -> Vec<HashMap<&str, HostInfo>> {
+    let mut hosts: Vec<HashMap<&str, HostInfo>> = Vec::new();
 
     if !ip_range.contains('/') {
         if !is_valid_ip(ip_range) {
@@ -118,7 +118,26 @@ pub fn scan(ip_range: &str, ports: Vec<u16>) -> Vec<HashMap<&str, String>> {
     return hosts;
 }
 
-fn scan_ports(ip: String, ports: Vec<u16>) -> HashMap<&'static str, String> {
+pub enum HostInfo {
+    Ip(String),
+    Ports(HashMap<u16, String>)
+}
+
+impl fmt::Display for HostInfo {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            HostInfo::Ip(ip) => write!(f, "{}", ip),
+            HostInfo::Ports(ports) => {
+                for (port, desc) in ports {
+                    writeln!(f, "\t\t{} -> {}", port, desc)?;
+                }
+                Ok(())
+            }
+        }
+    }
+}
+
+fn scan_ports(ip: String, ports: Vec<u16>) -> HashMap<&'static str, HostInfo> {
     let mut host = HashMap::new();
     let duration = Duration::from_secs(1);
 
@@ -126,19 +145,17 @@ fn scan_ports(ip: String, ports: Vec<u16>) -> HashMap<&'static str, String> {
         return host;
     }
 
-    let open_ports: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
+    let mut open_ports: HashMap<u16, String> = HashMap::new();
     ports.into_iter().for_each(|port| {
         let host = format!("{}:{}", ip, port);
-        let open_ports = Arc::clone(&open_ports);
         let socket_addr = SocketAddr::from_str(host.as_str()).unwrap();
-        if let Ok(mut stream) = TcpStream::connect_timeout(&socket_addr, Duration::from_secs(3)) {
-            open_ports.lock().unwrap().push(port.to_string());
-            println!("the answer is ---->  {}", get_banner(stream));
+        if let Ok(stream) = TcpStream::connect_timeout(&socket_addr, Duration::from_secs(3)) {
+            open_ports.insert(port, get_banner(stream));
         }
     });
 
-    host.insert("ip", ip);
-    host.insert("open_ports", open_ports.lock().unwrap().join(", "));
+    host.insert("ip", HostInfo::Ip(ip));
+    host.insert("open_parts", HostInfo::Ports(open_ports));
     return host;
 }
 
@@ -188,7 +205,7 @@ fn parse_server(banner: &str) -> String {
         }
     }
 
-    let mut server = map.get("Server").unwrap();
+    let server = map.get("Server").unwrap();
     return server.to_string();
 }
 

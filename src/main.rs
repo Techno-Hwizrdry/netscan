@@ -6,6 +6,7 @@ use std::process::exit;
 
 mod netscan;
 use netscan::scan;
+use netscan::HostInfo;
 
 const BANNER: &str = "
 ░▒▓███████▓▒░░▒▓████████▓▒░▒▓████████▓▒░▒▓███████▓▒░░▒▓██████▓▒░ ░▒▓██████▓▒░░▒▓███████▓▒░  
@@ -96,7 +97,7 @@ fn print_and_exit(msg: &str, code: i32) {
     exit(code);
 }
 
-fn output_hosts(hosts: Vec<HashMap<&str, String>>) {
+fn output_hosts(hosts: Vec<HashMap<&str, HostInfo>>) {
     if hosts.is_empty() {
         print_and_exit("\nNo hosts found.", 0);
     }
@@ -104,12 +105,10 @@ fn output_hosts(hosts: Vec<HashMap<&str, String>>) {
     println!("\nIP                 Open Ports");
     println!("-----------------------------");
 
-    for host in &hosts {
-        println!(
-            "{}     {}",
-            host.get("ip").unwrap(),
-            host.get("open_ports").unwrap()
-        );
+    for host in hosts {
+        for (_, host_info) in host {
+            println!("{}", host_info);
+        }
     }
 }
 
