@@ -1,3 +1,4 @@
+use colored::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::io::{Read, Write};
@@ -6,6 +7,37 @@ use std::str::FromStr;
 use std::time::Duration;
 use rand::random;
 use ping;
+
+const R: u8 = 22;
+const G: u8 = 121;
+const B: u8 = 226;
+const _R: u8 = 255 - R;
+const _G: u8 = 255 - G;
+const _B: u8 = 255 - B;
+
+pub enum HostInfo {
+    Ip(String),
+    Ports(HashMap<u16, String>)
+}
+
+impl fmt::Display for HostInfo {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            HostInfo::Ip(ip) => write!(f, "{}", ip.truecolor(R, G, B)),
+            HostInfo::Ports(ports) => {
+                for (port, desc) in ports {
+                    writeln!(
+                        f,
+                        "\t\t{} -> {}",
+                        port.to_string().truecolor(_R, _G, _B),
+                        desc.to_string().truecolor(_R, _G, _B)
+                    )?;
+                }
+                return Ok(());
+            }
+        }
+    }
+}
 
 fn cidr_to_ip_addresses(cidr: &str) -> Result<Vec<String>, Box<dyn std::error::Error>> {
     if cidr.is_empty() {
@@ -116,25 +148,6 @@ pub fn scan(ip_range: &str, ports: Vec<u16>) -> Vec<HashMap<&str, HostInfo>> {
     }
 
     return hosts;
-}
-
-pub enum HostInfo {
-    Ip(String),
-    Ports(HashMap<u16, String>)
-}
-
-impl fmt::Display for HostInfo {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            HostInfo::Ip(ip) => write!(f, "{}", ip),
-            HostInfo::Ports(ports) => {
-                for (port, desc) in ports {
-                    writeln!(f, "\t\t{} -> {}", port, desc)?;
-                }
-                Ok(())
-            }
-        }
-    }
 }
 
 fn scan_ports(ip: String, ports: Vec<u16>) -> HashMap<&'static str, HostInfo> {

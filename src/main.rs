@@ -18,6 +18,10 @@ const BANNER: &str = "
 ░▒▓█▓▒░░▒▓█▓▒░▒▓████████▓▒░  ░▒▓█▓▒░  ░▒▓███████▓▒░ ░▒▓██████▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░
 ";
 
+const R: u8 = 22;
+const G: u8 = 121;
+const B: u8 = 226;
+
 #[derive(Parser)]
 struct Cli {
     /// Either a single IP address or CIDR address.
@@ -101,10 +105,14 @@ fn output_hosts(hosts: Vec<HashMap<&str, HostInfo>>) {
     if hosts.is_empty() {
         print_and_exit("\nNo hosts found.", 0);
     }
-
-    println!("\nIP                 Open Ports");
-    println!("-----------------------------");
-
+    println!(
+        "{}",
+        "\nIP                 Open Ports".to_string().truecolor(R, G, B)
+    );
+    println!(
+        "{}",
+        "-----------------------------".to_string().truecolor(R, G, B)
+    );
     for host in hosts {
         for (_, host_info) in host {
             println!("{}", host_info);
@@ -124,9 +132,12 @@ fn main() {
         Err(ref error) => print_and_exit(error, 0),
     }
 
-    println!("{}", BANNER.truecolor(24,121,226));
-    println!("Target IP: {}", target);
-    println!("Ports: {}", ports_from_user.unwrap_or("All ports".to_string()));
+    println!("{}", BANNER.truecolor(R, G, B));
+    println!("Target IP: {}", target.truecolor(R, G, B));
+    println!(
+        "Ports: {}",
+        ports_from_user.unwrap_or("All ports".to_string()).truecolor(R, G, B)
+    );
 
     let hosts = scan(&target, ports_list);
     output_hosts(hosts);
