@@ -4,9 +4,11 @@ use std::collections::HashMap;
 use std::num::ParseIntError;
 use std::process::exit;
 
+mod hostinfo;
+use hostinfo::HostInfo;
+
 mod netscan;
 use netscan::scan;
-use netscan::HostInfo;
 
 const BANNER: &str = "
 ░▒▓███████▓▒░░▒▓████████▓▒░▒▓████████▓▒░▒▓███████▓▒░░▒▓██████▓▒░ ░▒▓██████▓▒░░▒▓███████▓▒░  
