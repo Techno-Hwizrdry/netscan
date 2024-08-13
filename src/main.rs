@@ -4,6 +4,9 @@ use std::collections::HashMap;
 use std::num::ParseIntError;
 use std::process::exit;
 
+mod text_colors;
+use text_colors::*;
+
 mod hostinfo;
 use hostinfo::HostInfo;
 
@@ -19,10 +22,6 @@ const BANNER: &str = "
 ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░         ░▒▓█▓▒░         ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
 ░▒▓█▓▒░░▒▓█▓▒░▒▓████████▓▒░  ░▒▓█▓▒░  ░▒▓███████▓▒░ ░▒▓██████▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░
 ";
-
-const R: u8 = 22;
-const G: u8 = 121;
-const B: u8 = 226;
 
 #[derive(Parser)]
 struct Cli {

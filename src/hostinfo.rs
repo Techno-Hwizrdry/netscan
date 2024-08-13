@@ -1,13 +1,7 @@
 use colored::*;
 use std::collections::HashMap;
 use std::fmt;
-
-const R: u8 = 22;
-const G: u8 = 121;
-const B: u8 = 226;
-const _R: u8 = 255 - R;
-const _G: u8 = 255 - G;
-const _B: u8 = 255 - B;
+use super::text_colors::*;
 
 pub enum HostInfo {
     Ip(String),
