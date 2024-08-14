@@ -169,14 +169,15 @@ fn parse_server(banner: &str) -> String {
             if ordinal_value == 0 {
                 break;
             }
-        } else {
-            println!("");
         }
 
-        if !line.contains(':') && banner.lines().count() >= 1 {
+        if !line.contains(':') && banner.lines().count() <= 2 {
             map.insert("Server".to_string(), line.to_string());
             continue;
         }
+
+        if !line.to_lowercase().contains("server:") { continue }
+
         let mut parts = line.splitn(2, ':');
         let key = parts.next().unwrap().trim();
         let value = parts.next().unwrap().trim();
@@ -187,8 +188,10 @@ fn parse_server(banner: &str) -> String {
         }
     }
 
-    let server = map.get("Server").unwrap();
-    return server.to_string();
+    if let Some(s) = map.get("Server") {
+        return s.to_string();
+    }
+    return "Service info not available.".to_string();
 }
 
 #[cfg(test)]
@@ -202,7 +205,7 @@ mod tests {
             "192.168.1.3"
         ].map(String::from).to_vec();
         assert_eq!(expected_ips, cidr_to_ip_addresses("192.168.1.2/31")?);
-        Ok(())
+        return Ok(());
     }
     
     #[test]
