@@ -18,6 +18,10 @@ To build the release version:
 
 `cargo build --release`
 
+To run the unit tests:
+
+`cargo test`
+
 ## Usage
 
 Below are the command line arguments that can be passed to netscan.
