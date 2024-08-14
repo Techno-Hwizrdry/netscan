@@ -23,6 +23,10 @@ const BANNER: &str = "
 ░▒▓█▓▒░░▒▓█▓▒░▒▓████████▓▒░  ░▒▓█▓▒░  ░▒▓███████▓▒░ ░▒▓██████▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░
 ";
 
+const MAX_PORT: u16 = 65535;
+const MIN_PORT: u16 = 1;
+const DEFAULT_MAX: u16 = 1024;
+
 #[derive(Parser)]
 struct Cli {
     /// Either a single IP address or CIDR address.
@@ -33,13 +37,21 @@ struct Cli {
     ports: Option<String>
 }
 
+fn check_port_value(port: u16) {
+    if port < MIN_PORT || port > MAX_PORT {
+        print_and_exit("ERROR: Invalid port value.", 1);
+    }
+}
+
 fn parse_comma_seperated_ports(ports: &str) -> Result<Vec<u16>, ParseIntError> {
     let mut list = vec![];
     let mut split = ports.split(",");
     loop {
         match split.next() {
             Some(p) => {
-                list.push(p.parse::<u16>()?);
+                let port: u16 = p.parse::<u16>()?;
+                check_port_value(port);
+                list.push(port);
             }
             None => break
         }
@@ -58,6 +70,14 @@ fn parse_port_range(ports: &str) -> Result<Vec<u16>, ParseIntError> {
         Some(v) => v.parse::<u16>()?,
         None => panic!("range value is not valid, see netscan --help for more info")
     };
+
+    check_port_value(start);
+    check_port_value(end);
+    if start > end {
+        let msg = "ERROR: starting port number must be less than ending port number.";
+        print_and_exit(msg, 1);
+    }
+
     let mut list = vec![];
     (start..=end).into_iter().for_each(|x| list.push(x));
     return Ok(list);
@@ -65,7 +85,7 @@ fn parse_port_range(ports: &str) -> Result<Vec<u16>, ParseIntError> {
 
 fn parse_ports_str(ports_opt: Option<String>) -> Result<Vec<u16>, String> { 
     if ports_opt.is_none() {
-        return Ok((1..65535).collect::<Vec<u16>>());
+        return Ok((1..DEFAULT_MAX).collect::<Vec<u16>>());
     }
 
     let ports: &str = &ports_opt.unwrap();
@@ -73,6 +93,7 @@ fn parse_ports_str(ports_opt: Option<String>) -> Result<Vec<u16>, String> {
 
     if ports.parse::<u16>().is_ok() {
         let single_port: u16 = ports.parse::<u16>().unwrap();
+        check_port_value(single_port);
         return Ok(vec![single_port]);
     }
 
