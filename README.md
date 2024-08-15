@@ -32,7 +32,7 @@ Below are the command line arguments that can be passed to netscan.
 
 ### Examples
 
-Omitting the -p argument will default to scanning all 65,535 ports on the target IP address (or CIDR address).
+Omitting the -p argument will default to scanning ports 1 - 1024 on the target IP address (or CIDR address).
 
 `netscan --address 192.168.1.1`
 
