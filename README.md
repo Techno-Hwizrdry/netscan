@@ -46,7 +46,7 @@ To scan an IP given a range of ports:
 
 To scan an IP given a list of ports:
 
-`netscan --address 192.168.1.1 -p 53,80,443,`
+`netscan --address 192.168.1.1 -p 53,80,443`
 
 Providing a CIDR address allows you to scan a range of IP addresses.  Ports can be provided too:
 
